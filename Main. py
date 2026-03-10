@@ -1,0 +1,320 @@
+Generate n even numbers
+main.py
+
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route("/")
+def generate_evens():
+    try:
+        n = int(request.args.get("n", 10)) # default is 10
+
+        if n < 1:
+            return jsonify({"error": "n must be >= 1"}), 400
+
+        even_numbers = [2 * i for i in range(1, n + 1)]
+
+        return jsonify({
+            "count": n,
+            "even_numbers": even_numbers
+        })
+
+    except ValueError:
+        return jsonify({"error": "Invalid input. Provide an integer n."}), 400
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8888)
+
+app.yaml
+
+runtime: python311
+handlers:
+  - url: /.*
+    script: auto
+
+requirements.txt
+
+Flask==3.0.0
+
+Commands 
+Create a folder include all the files
+In cmd,
+gcloud init
+Copy id from Google cloud console
+google cloud app create 
+cd folder name
+gcloud app deploy
+gcloud app browser
+
+
+Multiplication of 2 matrices
+main.py
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+@app.route("/")
+def multiply():
+
+    A = [[1, 2], [3, 4]]
+    B = [[5, 6], [7, 8]]
+
+    # Matrix multiplication
+    result = [[sum(A[i][k] * B[k][j] for k in range(2))
+              for j in range(2)] for i in range(2)]
+
+    return jsonify({
+        "matrix_A": A,
+        "matrix_B": B,
+        "result": result
+    })
+
+if __name__ == "__main__":
+    app.run(port=8080)
+
+app.yaml
+runtime: python311
+
+handlers:
+- url: /.*
+  script: auto
+
+requirements.txt
+
+Flask==3.0.0
+
+Commands 
+Create a folder include all the files
+In cmd,
+gcloud init
+Copy id from Google cloud console
+google cloud app create 
+cd folder name
+gcloud app deploy
+gcloud app browser
+
+
+Perform got operations 
+>>gcloud init
+>>gcloud app create
+>>gcloud services enable appengine.googleapis.com
+>>gcloud services enable cloudbuild.googleapis.com
+>>gcloud services enable storage.googleapis.com
+>>gsutil mb gs://staging.erudite-nation-381914.appspot.com
+>> cd even-generator-app
+>> gcloud app deploy
+>> gcloud app browse
+
+
+
+
+mkdir eclab
+cd eclab
+touch demo.py
+git init
+git status
+git add .
+git commit -m "Initial commit”
+git remote add origin <repository_url>
+git branch -M main
+git push -u origin main
+git log
+git checkout -b test
+git pull origin main
+git remote remove origin
+rm -rf .git
+
+STORE USER INFORMATION APP ENGINE
+import cx_Oracle
+DB_USER = "test47"
+DB_PASSWORD = "test47"
+DB_DSN = "PSGCASLABS.labs-psgcas.com:1521/itora"
+try:
+    conn = cx_Oracle.connect(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN)
+    cursor = conn.cursor()
+    print(" Connection successful!\n")
+except cx_Oracle.DatabaseError as e:
+    print(" Database connection failed:", e)
+    exit()
+try:
+    cursor.execute("SELECT id, password FROM usersmss")
+    rows = cursor.fetchall()
+    if rows:
+        print("All records in usersmss table:")
+        print("-" * 30)
+        for row in rows:
+            print(f"ID: '{row[0]}', PASSWORD: '{row[1]}'")
+        print("-" * 30)
+        print(f"Total rows: {len(rows)}")
+    else:
+        print(" usersmss table is empty!")
+except cx_Oracle.DatabaseError as e:
+    print("Query failed:", e)
+finally:
+    cursor.close()
+    conn.close()
+
+
+  
+DATABASE LOGIN APP ENGINE
+from flask import Flask, request, jsonify, render_template_string
+import cx_Oracle
+app = Flask(__name__)
+def get_connection():
+    return cx_Oracle.connect(
+        user="test47",
+        password="test47",
+        dsn="PSGCASLABS.labs-psgcas.com:1521/itora"
+    )
+HTML_PAGE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login & Signup</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+<h3>Login</h3>
+<form id="loginForm">
+    <div class="mb-3">
+        <input type="text" class="form-control" name="username" placeholder="Username" required>
+    </div>
+    <div class="mb-3">
+        <input type="password" class="form-control" name="password" placeholder="Password" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+<hr>
+<h3>Signup</h3>
+<form id="signupForm">
+    <div class="mb-3">
+        <input type="text" class="form-control" name="username" placeholder="New Username" required>
+    </div>
+    <div class="mb-3">
+        <input type="password" class="form-control" name="password" placeholder="New Password" required>
+    </div>
+    <button type="submit" class="btn btn-success">Signup</button>
+</form>
+<!-- Toast -->
+<div class="toast position-fixed bottom-0 end-0 p-3" id="liveToast">
+    <div class="toast-header">
+        <strong class="me-auto">Status</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+    </div>
+    <div class="toast-body" id="toastMessage"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.getElementById("loginForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    let formData = new FormData(this);
+    fetch("/login", { method: "POST", body: formData })
+    .then(res => res.json())
+    .then(data => {
+        let toast = new bootstrap.Toast(document.getElementById('liveToast'));
+        document.getElementById('toastMessage').innerText = data.status === "success" ? "Login Successful!" : "Invalid Username or Password!";
+        toast.show();
+    });
+});
+document.getElementById("signupForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    let formData = new FormData(this);
+    fetch("/signup", { method: "POST", body: formData })
+    .then(res => res.json())
+    .then(data => {
+        let toast = new bootstrap.Toast(document.getElementById('liveToast'));
+        if (data.status === "success") {
+            document.getElementById('toastMessage').innerText = "Signup Successful!";
+        } else {
+            document.getElementById('toastMessage').innerText = "Username already exists!";
+        }
+        toast.show();
+    });
+});
+</script>
+</body>
+</html>
+"""
+@app.route('/')
+def home():
+    return render_template_string(HTML_PAGE)
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form['username'].strip()
+    password = request.form['password'].strip()
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT * FROM usersmss
+        WHERE TRIM(UPPER(id)) = :id_val AND TRIM(password) = :pwd_val
+    """, {"id_val": username.upper(), "pwd_val": password})
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    if user:
+        return jsonify({"status": "success"})
+    else:
+        return jsonify({"status": "fail"})
+@app.route('/signup', methods=['POST'])
+def signup():
+    username = request.form['username'].strip()
+    password = request.form['password'].strip()
+    conn = get_connection()
+    cursor = conn.cursor()
+    # Check if username already exists
+    cursor.execute("""
+        SELECT COUNT(*) FROM usersmss
+        WHERE TRIM(UPPER(id)) = :id_val
+    """, {"id_val": username.upper()})
+    if cursor.fetchone()[0] > 0:
+        cursor.close()
+        conn.close()
+        return jsonify({"status": "fail"})
+    # Insert new user
+    cursor.execute("""
+        INSERT INTO usersmss (id, password) VALUES (:id_val, :pwd_val)
+    """, {"id_val": username, "pwd_val": password})
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({"status": "success"})
+if __name__ == '__main__':
+    app.run(debug=True)  
+
+
+""Chef-knife prgram""
+
+In command prompt:
+chef generate repo chef-repo
+cd chef-repo
+
+
+Defaultly created knife.rb file type this :
+
+knife.rb
+
+current_dir = File.dirname(__FILE__)
+
+
+log_level :info
+
+log_location STDOUT
+
+node_name "localuser"
+
+client_key "#{current_dir}/localuser.pem"
+
+chef_server_url "http://localhost:8889"
+
+cookbook_path ["#{current_dir}/../cookbooks"]
+
+Command prompt:
+openssl genrsa -out localuser.pem 2048
+chef-client –z
+knife node list –z
+knife client list –z
+ 
+
